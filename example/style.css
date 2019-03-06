@@ -1,0 +1,36 @@
+* { box-sizing: border-box; }
+
+html {
+    overflow: hidden;
+}
+
+#controls {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+}
+    #controls button {
+        font-size: 10px;
+    }
+
+#chart-holder {
+    box-shadow: 0 0 5px 0px rgba(0, 0, 0, 0.25);
+    height: 80%;
+    left: 50%;
+    overflow: hidden;
+    position: fixed;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+}
+
+
+#chart-holder {
+    position: relative;
+}
+
+#chart-holder canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
