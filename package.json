@@ -38,7 +38,8 @@
       "no-param-reassign": 0,
       "prefer-template": 0,
       "arrow-body-style": 0,
-      "import/extensions": 0
+      "import/extensions": 0,
+      "quote-props": 0
     },
     "globals": {
       "document": true,

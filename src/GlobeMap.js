@@ -16,7 +16,7 @@ import WORLD_ATLAS from './world2-topo.json';
 import REGION_COUNTRY_MAP from './regionCountryMap.json';
 
 /**
- *
+ * All names of regions/countries internally are used in lowercase.
  */
 export default class GlobeMap {
     constructor(document, customSettings) {
@@ -152,6 +152,36 @@ export default class GlobeMap {
         }
 
         /**
+         * Mapping between custom regions
+         * and their zoom function.
+         *
+         * @type {Object.<Function>}
+         */
+        this.regionToZoomFunction = {
+            'africa': this.zoomOnAfrica.bind(this),
+            'antarctica': this.zoomOnAntarctica.bind(this),
+            'asia': this.zoomOnAsia.bind(this),
+            'australia and new zealand': this.zoomOnAustraliaAndNewZealand.bind(this),
+            'europe': this.zoomOnEurope.bind(this),
+            'middle east': this.zoomOnMiddleEast.bind(this),
+            'northern africa': this.zoomOnNorthernAfrica.bind(this),
+            'caribbean': this.zoomOnCaribbean.bind(this),
+            'central asia': this.zoomOnCentralAsia.bind(this),
+            'central america': this.zoomOnCentralAmerica.bind(this),
+            'eastern asia': this.zoomOnEasternAsia.bind(this),
+            'eastern europe': this.zoomOnEasternEurope.bind(this),
+            'north america': this.zoomOnNorthAmerica.bind(this),
+            'northern europe': this.zoomOnNorthernEurope.bind(this),
+            'southern africa': this.zoomOnSouthernAfrica.bind(this),
+            'southern asia': this.zoomOnSouthernAsia.bind(this),
+            'south america': this.zoomOnSouthAmerica.bind(this),
+            'southern europe': this.zoomOnSouthernEurope.bind(this),
+            'southeastern asia': this.zoomOnSouthEasternAsia.bind(this),
+            'western africa': this.zoomOnWesternAfrica.bind(this),
+            'western europe': this.zoomOnWesternEurope.bind(this),
+        };
+
+        /**
          * @type {Boolean}
          */
         this.initialized = false;
@@ -258,6 +288,33 @@ export default class GlobeMap {
     }
 
     /**
+     * Highlight a particular region or country.
+     *
+     * @param  {String} name
+     * @param  {String} color
+     */
+    highlight(name, color) {
+        if (REGION_COUNTRY_MAP[name]) {
+            this.highlightRegion(name, color);
+        } else {
+            this.highlightCountry(name, color);
+        }
+    }
+
+    /**
+     * Unhighlight country or region.
+     *
+     * @param {String} name
+     */
+    unhighlight(name) {
+        if (REGION_COUNTRY_MAP[name]) {
+            this.unhighlightRegion(name);
+        } else {
+            this.unhighlightCountry(name);
+        }
+    }
+
+    /**
      * Highlight a specific country.
      *
      * @param  {String}           countryName
@@ -270,13 +327,28 @@ export default class GlobeMap {
             if (this.isCountryHighlighted(countryName) === false) {
                 this.highlightedCountries.push({
                     id: countryGeoJson.properties.id,
-                    name: countryName,
+                    name: countryName.toLowerCase(),
                     color: color || this.settings.highlightColor,
                     geojson: countryGeoJson
                 });
+
+                this.render();
             }
         } else {
             console.log('No iso code was found for ' + countryName + ' so cannot highlight it.');
+        }
+    }
+
+    unhighlightCountry(name) {
+        for (let i = 0; i < this.highlightedCountries.length; i++) {
+            const highlightedCountry = this.highlightedCountries[i];
+
+            if (highlightedCountry.name === name.toLowerCase()) {
+
+                this.highlightedCountries.splice(i, 1);
+                this.render();
+                break;
+            }
         }
     }
 
@@ -309,6 +381,29 @@ export default class GlobeMap {
 
                 this.highlightCountry(country, color);
             }
+
+            this.render();
+        } else {
+            console.log(`The region of ${regionName} was not found in the continent list`);
+        }
+    }
+
+    /**
+     * Unhighlight a specific region.
+     *
+     * @param {} regionName
+     */
+    unhighlightRegion(regionName) {
+        const countries = REGION_COUNTRY_MAP[regionName];
+
+        if (countries !== undefined) {
+            for (let i = 0; i < countries.length; i++) {
+                const country = countries[i];
+
+                this.unhighlightCountry(country);
+            }
+
+            this.render();
         } else {
             console.log(`The region of ${regionName} was not found in the continent list`);
         }
@@ -321,6 +416,24 @@ export default class GlobeMap {
      */
     centerOnCountry(name) {
         this.zoomOn(name, this.zoom);
+    }
+
+    /**
+     * Zoom on a specific country or region.
+     *
+     * @param  {String} name
+     * @param  {Number} zoom
+     * @param  {Number} offsetX
+     * @param  {Number} offsetY
+     */
+    zoomOn(name, zoom, offsetX, offsetY) {
+        name = name.toLowerCase();
+
+        if (this.regionToZoomFunction[name]) {
+            this.regionToZoomFunction[name](zoom, offsetX, offsetY);
+        } else {
+            this.zoomOnCountry(name, zoom, offsetX, offsetY);
+        }
     }
 
     /**
@@ -484,87 +597,88 @@ export default class GlobeMap {
         this.setZoom(1);
     }
 
-    zoomOnAfrica(zoomlevel) {
-        this.zoomOnCountry('central african republic', zoomlevel || 1.5, 0, -2);
+    zoomOnAfrica(zoomlevel, offsetX = 0, offsetY = 0) {
+        console.log(this, offsetX, offsetY);
+        this.zoomOnCountry('central african republic', zoomlevel || 1.5, 0 + offsetX, -2 + offsetY);
     }
 
-    zoomOnAntartica(zoomlevel) {
-        this.zoomOnCountry('antarctica', zoomlevel || 2.1);
+    zoomOnAntarctica(zoomlevel, offsetX = 0, offsetY = 0) {
+        this.zoomOnCountry('antarctica', zoomlevel || 2.1, offsetX, offsetY);
     }
 
-    zoomOnAsia(zoomlevel) {
-        this.zoomOnCountry('india', zoomlevel || 1.2);
+    zoomOnAsia(zoomlevel, offsetX = 0, offsetY = 0) {
+        this.zoomOnCountry('india', zoomlevel || 1.2, offsetX, offsetY);
     }
 
-    zoomOnAustraliaAndNewZealand(zoomlevel) {
-        this.zoomOnCountry('australia', zoomlevel || 1.8, 10);
+    zoomOnAustraliaAndNewZealand(zoomlevel, offsetX = 0, offsetY = 0) {
+        this.zoomOnCountry('australia', zoomlevel || 1.8, 10 + offsetX, offsetY);
     }
 
-    zoomOnEurope(zoomlevel) {
-        this.zoomOnCountry('germany', zoomlevel || 2.8);
+    zoomOnEurope(zoomlevel, offsetX = 0, offsetY = 0) {
+        this.zoomOnCountry('germany', zoomlevel || 2.8, offsetX, offsetY);
     }
 
-    zoomOnMiddleEast(zoomlevel) {
-        this.zoomOnCountry('iraq', zoomlevel || 2.4);
+    zoomOnMiddleEast(zoomlevel, offsetX = 0, offsetY = 0) {
+        this.zoomOnCountry('iraq', zoomlevel || 2.4, offsetX, offsetY);
     }
 
-    zoomOnNorthernAfrica(zoomlevel) {
-        this.zoomOnCountry('niger', zoomlevel || 2.4);
+    zoomOnNorthernAfrica(zoomlevel, offsetX = 0, offsetY = 0) {
+        this.zoomOnCountry('niger', zoomlevel || 2.4, offsetX, offsetY);
     }
 
-    zoomOnCaribbean(zoomlevel) {
-        this.zoomOnCountry('cuba', zoomlevel || 3.5);
+    zoomOnCaribbean(zoomlevel, offsetX = 0, offsetY = 0) {
+        this.zoomOnCountry('cuba', zoomlevel || 3.5, offsetX, offsetY);
     }
 
-    zoomOnCentralAsia(zoomlevel) {
-        this.zoomOnCountry('uzbekistan', zoomlevel || 3.5);
+    zoomOnCentralAsia(zoomlevel, offsetX = 0, offsetY = 0) {
+        this.zoomOnCountry('uzbekistan', zoomlevel || 3.5, offsetX, offsetY);
     }
 
-    zoomOnCentralAmerica(zoomlevel) {
-        this.zoomOnCountry('honduras', zoomlevel || 3.5);
+    zoomOnCentralAmerica(zoomlevel, offsetX = 0, offsetY = 0) {
+        this.zoomOnCountry('honduras', zoomlevel || 3.5, offsetX, offsetY);
     }
 
-    zoomOnEasternAsia(zoomlevel) {
-        this.zoomOnCountry('china', zoomlevel || 2);
+    zoomOnEasternAsia(zoomlevel, offsetX = 0, offsetY = 0) {
+        this.zoomOnCountry('china', zoomlevel || 2, offsetX, offsetY);
     }
 
-    zoomOnEasternEurope(zoomlevel) {
-        this.zoomOnCountry('romania', zoomlevel || 5.4);
+    zoomOnEasternEurope(zoomlevel, offsetX = 0, offsetY = 0) {
+        this.zoomOnCountry('romania', zoomlevel || 5.4, offsetX, offsetY);
     }
 
-    zoomOnNorthAmerica(zoomlevel) {
-        this.zoomOnCountry('united states', zoomlevel || 1.4);
+    zoomOnNorthAmerica(zoomlevel, offsetX = 0, offsetY = 0) {
+        this.zoomOnCountry('united states', zoomlevel || 1.4, offsetX, offsetY);
     }
 
-    zoomOnNorthernEurope(zoomlevel) {
-        this.zoomOnCountry('sweden', zoomlevel || 4.4);
+    zoomOnNorthernEurope(zoomlevel, offsetX = 0, offsetY = 0) {
+        this.zoomOnCountry('sweden', zoomlevel || 4.4, offsetX, offsetY);
     }
 
-    zoomOnSouthernAfrica(zoomlevel) {
-        this.zoomOnCountry('botswana', zoomlevel || 2.4);
+    zoomOnSouthernAfrica(zoomlevel, offsetX = 0, offsetY = 0) {
+        this.zoomOnCountry('botswana', zoomlevel || 2.4, offsetX, offsetY);
     }
 
-    zoomOnSouthernAsia(zoomlevel) {
-        this.zoomOnCountry('pakistan', zoomlevel || 2.4);
+    zoomOnSouthernAsia(zoomlevel, offsetX = 0, offsetY = 0) {
+        this.zoomOnCountry('pakistan', zoomlevel || 2.4, offsetX, offsetY);
     }
 
-    zoomOnSouthAmerica(zoomlevel) {
-        this.zoomOnCountry('bolivia', zoomlevel || 1.6, 0, -3.5);
+    zoomOnSouthAmerica(zoomlevel, offsetX = 0, offsetY = 0) {
+        this.zoomOnCountry('bolivia', zoomlevel || 1.6, 0 + offsetX, -3.5 + offsetY);
     }
 
-    zoomOnSouthernEurope(zoomlevel) {
-        this.zoomOnCountry('italy', zoomlevel || 4.4, -8);
+    zoomOnSouthernEurope(zoomlevel, offsetX = 0, offsetY = 0) {
+        this.zoomOnCountry('italy', zoomlevel || 4.4, -8 + offsetX, offsetY);
     }
 
-    zoomOnSouthEasternAsia(zoomlevel) {
-        this.zoomOnCountry('indonesia', zoomlevel || 2, -2);
+    zoomOnSouthEasternAsia(zoomlevel, offsetX = 0, offsetY = 0) {
+        this.zoomOnCountry('indonesia', zoomlevel || 2, -2 + offsetX, offsetY);
     }
 
-    zoomOnWesternAfrica(zoomlevel) {
-        this.zoomOnCountry('burkina faso', zoomlevel || 2.4, 5);
+    zoomOnWesternAfrica(zoomlevel, offsetX = 0, offsetY = 0) {
+        this.zoomOnCountry('burkina faso', zoomlevel || 2.4, 5 + offsetX, offsetY);
     }
 
-    zoomOnWesternEurope(zoomlevel) {
-        this.zoomOnCountry('belgium', zoomlevel || 4.4);
+    zoomOnWesternEurope(zoomlevel, offsetX = 0, offsetY = 0) {
+        this.zoomOnCountry('belgium', zoomlevel || 4.4, offsetX, offsetY);
     }
 }

@@ -75,7 +75,7 @@ createControl('N Africa', globeMap.zoomOnNorthernAfrica.bind(globeMap));
 createControl('S Africa', globeMap.zoomOnSouthernAfrica.bind(globeMap));
 createControl('W Africa', globeMap.zoomOnWesternAfrica.bind(globeMap));
 
-createControl('Antarctica', globeMap.zoomOnAntartica.bind(globeMap));
+createControl('antarctica', globeMap.zoomOnAntarctica.bind(globeMap));
 
 createControl('Asia', globeMap.zoomOnAsia.bind(globeMap));
 createControl('C Asia', globeMap.zoomOnCentralAsia.bind(globeMap));
