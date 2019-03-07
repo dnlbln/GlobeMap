@@ -250,7 +250,6 @@ export default class GlobeMap {
         // Now we can create a geo path function.
         this.geoPath = geoPath(this.projection, this.canvasContext);
 
-
         const baseProjection = geoOrthographic().fitExtent([[0, 0], [this.holderBoundingBox.width, this.holderBoundingBox.height]], {
             type: 'Sphere'
         });
@@ -414,6 +413,10 @@ export default class GlobeMap {
         // here a list of correct zoom levels for those specific
         // countries.
         const predefinedFillZoomLevels = {
+            australia: 2.5,
+            germany: 14,
+            ireland: 20,
+            mexico: 3.8,
             sweden: 8,
             'united states': 2
         };
@@ -425,9 +428,15 @@ export default class GlobeMap {
 
             // Correction factor because the tempProjection is always
             // a bit zoomed in too much on the selected country.
-            const correctionFactor = 0.75;
+            const correctionFactor = 0.65;
 
             zoomlevel = (tempProjection.scale() / this.baseProjectionScale) * correctionFactor;
+
+            console.log(tempProjection, tempProjection.scale(), this.baseProjectionScale);
+        }
+
+        if (zoomlevel < 1) {
+            return 1;
         }
 
         return zoomlevel;
@@ -476,7 +485,7 @@ export default class GlobeMap {
     }
 
     zoomOnAfrica(zoomlevel) {
-        this.zoomOnCountry('central african republic', zoomlevel || 1.5);
+        this.zoomOnCountry('central african republic', zoomlevel || 1.5, 0, -2);
     }
 
     zoomOnAntartica(zoomlevel) {
@@ -540,7 +549,7 @@ export default class GlobeMap {
     }
 
     zoomOnSouthAmerica(zoomlevel) {
-        this.zoomOnCountry('bolivia', zoomlevel || 1.6);
+        this.zoomOnCountry('bolivia', zoomlevel || 1.6, 0, -3.5);
     }
 
     zoomOnSouthernEurope(zoomlevel) {
