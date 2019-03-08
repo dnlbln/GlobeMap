@@ -320,7 +320,7 @@ export default class GlobeMap {
      * @param  {String}           countryName
      * @param  {String|undefined} color       optional
      */
-    highlightCountry(countryName, color) {
+    highlightCountry(countryName, color, render = true) {
         const countryGeoJson = this.getCountryGeoJson(countryName);
 
         if (countryGeoJson !== null) {
@@ -332,21 +332,27 @@ export default class GlobeMap {
                     geojson: countryGeoJson
                 });
 
-                this.render();
+                if (render === true) {
+                    this.render();
+                }
             }
         } else {
             console.log('No iso code was found for ' + countryName + ' so cannot highlight it.');
         }
     }
 
-    unhighlightCountry(name) {
+    unhighlightCountry(name, render = true) {
         for (let i = 0; i < this.highlightedCountries.length; i++) {
             const highlightedCountry = this.highlightedCountries[i];
 
             if (highlightedCountry.name === name.toLowerCase()) {
 
                 this.highlightedCountries.splice(i, 1);
-                this.render();
+
+                if (render === true) {
+                    this.render();
+                }
+
                 break;
             }
         }
@@ -379,7 +385,7 @@ export default class GlobeMap {
             for (let i = 0; i < countries.length; i++) {
                 const country = countries[i];
 
-                this.highlightCountry(country, color);
+                this.highlightCountry(country, color, false);
             }
 
             this.render();
@@ -400,7 +406,7 @@ export default class GlobeMap {
             for (let i = 0; i < countries.length; i++) {
                 const country = countries[i];
 
-                this.unhighlightCountry(country);
+                this.unhighlightCountry(country, false);
             }
 
             this.render();
