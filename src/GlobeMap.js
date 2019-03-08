@@ -550,8 +550,6 @@ export default class GlobeMap {
             const correctionFactor = 0.65;
 
             zoomlevel = (tempProjection.scale() / this.baseProjectionScale) * correctionFactor;
-
-            console.log(tempProjection, tempProjection.scale(), this.baseProjectionScale);
         }
 
         if (zoomlevel < 1) {
@@ -604,7 +602,6 @@ export default class GlobeMap {
     }
 
     zoomOnAfrica(zoomlevel, offsetX = 0, offsetY = 0) {
-        console.log(this, offsetX, offsetY);
         this.zoomOnCountry('central african republic', zoomlevel || 1.5, 0 + offsetX, -2 + offsetY);
     }
 
